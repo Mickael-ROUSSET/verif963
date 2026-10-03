@@ -1,0 +1,20 @@
+[GENERAL]
+process_name = s2.exe
+exe_path = C:\Program Files (x86)\Trend Control Systems\963\s2.exe
+working_dir = C:\Program Files (x86)\Trend Control Systems\963
+log_file = C:\Users\Public\SupervisionMairie\Surveillance_963\surveillance_963.log
+check_interval_seconds = 30
+mail_alert_interval_minutes = 15
+restart_retry_interval_seconds = 300
+restart_enabled = false
+restart_verification_delay_seconds = 10
+send_test_mail_on_startup = true
+
+[SMTP]
+server = smtp.gmail.com
+port = 587
+use_tls = true
+username = compte@gmail.com
+password = MOT_DE_PASSE_APPLICATION
+mail_from = compte@gmail.com
+mail_to = destinataire@example.com
