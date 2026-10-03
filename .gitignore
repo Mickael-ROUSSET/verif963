@@ -1,0 +1,5 @@
+surveillance_963.ini
+*.log
+__pycache__/
+*.pyc
+backup/
