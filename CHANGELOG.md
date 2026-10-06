@@ -14,3 +14,9 @@
 - Redémarrage automatique optionnel.
 - Configuration INI locale.
 - Installation et mise à jour depuis les Releases publiques.
+
+## Corrections de la revue PR 2
+- Detection Python machine, winget machine, compatibilite PowerShell 5.1.
+- Environnements Python isoles, mise a jour transactionnelle et restauration.
+- Tache SYSTEM actualisee sans limite de duree, activation initiale manuelle.
+- Permissions protegees, configuration preservee et tests de panne.
