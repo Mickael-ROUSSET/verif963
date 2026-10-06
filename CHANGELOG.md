@@ -1,5 +1,13 @@
 # Changelog
 
+## Prochaine version
+- Installation « une commande » sur un nouveau PC Windows.
+- Installation automatique de Python via winget lorsqu'il est absent.
+- Installation automatique des dépendances Python.
+- Création automatique de la tâche planifiée de surveillance.
+- Mise à jour des dépendances lors des mises à jour.
+- Conservation de la configuration locale.
+
 ## 1.0.0
 - Surveillance de s2.exe.
 - Alertes SMTP temporisées.
