@@ -6,7 +6,7 @@ from email.utils import formataddr
 from pathlib import Path
 import psutil
 
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 SCRIPT_DIR=Path(__file__).resolve().parent
 CONFIG_FILE=SCRIPT_DIR/"surveillance_963.ini"
 
