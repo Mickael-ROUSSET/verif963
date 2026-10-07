@@ -15,7 +15,7 @@ Invoke-WebRequest -UseBasicParsing https://raw.githubusercontent.com/Mickael-ROU
 
 Pour un chemin personnalise : `& $installer -InstallDir 'C:\Supervision mairie\Trend 963' -TaskName 'Surveillance Trend 963'`.
 
-**Publication requise :** cette PR doit etre validee avant publication d'une nouvelle release contenant ces scripts (format de deploiement 2). Le script refuse les anciennes releases pour ne pas reinstaller un ancien moteur de mise a jour. Le tag `vX.Y.Z` doit correspondre a `VERSION` dans `verif963.py`. Pendant la revue, l'URL `main` ci-dessus ne contient pas encore ces corrections. Aucun tag existant n'est modifie.
+**Version 1.1.0 :** cette version introduit le format de deploiement 2. Le script refuse les anciennes releases incompatibles pour ne pas reinstaller un ancien moteur de mise a jour. Le tag `vX.Y.Z` doit toujours correspondre a `VERSION` dans `verif963.py`.
 
 L'installateur valide l'archive complete avant de modifier les fichiers actifs. Il selectionne un executable Python >= 3.9 installe pour la machine, en verifiant reellement son fonctionnement. Les alias Microsoft Store et installations dans les profils utilisateurs sont exclus car la tache utilise SYSTEM. S'il manque, winget installe `Python.Python.3.13` avec `--scope machine`. Si winget manque ou echoue, installer Python pour tous les utilisateurs puis relancer ; le message d'erreur precise la cause.
 

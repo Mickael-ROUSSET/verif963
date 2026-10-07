@@ -17,7 +17,7 @@ function Assert-Administrator {}
 function Get-Python { return 'C:\Python313\python.exe' }
 function Install-Python { throw 'Unexpected winget installation' }
 function Set-Acl {}
-function Invoke-RestMethod { return @{tag_name='v1.0.0'} }
+function Invoke-RestMethod { return @{tag_name='v1.1.0'} }
 function Invoke-WebRequest { param($Uri,$OutFile,[switch]$UseBasicParsing,$TimeoutSec) Assert $UseBasicParsing 'basic parsing required'; Set-Content -LiteralPath $OutFile 'zip' }
 function Expand-Archive {
     param($LiteralPath,$DestinationPath)
@@ -36,7 +36,7 @@ function Invoke-Python {
         Set-Content (Join-Path $scripts 'python.exe') 'mock'
     }
     if ($Arguments -contains 'install' -and $script:fail -eq 'pip') { throw 'pip failure' }
-    if ($Arguments -contains '--version') { if ($script:fail -eq 'version') { return '9.9.9' }; return '1.0.0' }
+    if ($Arguments -contains '--version') { if ($script:fail -eq 'version') { return '9.9.9' }; return '1.1.0' }
 }
 function Get-ScheduledTask { return $script:task }
 function Export-ScheduledTask { return 'original xml' }
