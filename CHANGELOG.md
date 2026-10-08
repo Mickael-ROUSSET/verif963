@@ -1,6 +1,8 @@
 # Changelog
 
 ## 1.1.1
+- Le seuil de 1 déclenche l'alerte dès l'observation initiale négative.
+- Mail de rétablissement conservé en mémoire après échec SMTP, avec nouvelles tentatives espacées d'au moins 60 secondes (ou l'intervalle de contrôle s'il est plus long). L'attente est supprimée après succès ou remplacée par une nouvelle panne confirmée ; elle ne survit pas au redémarrage du programme.
 - SMTP SSL/TLS implicite (port 465, Orange) et STARTTLS (port 587, Gmail), compatible avec l'ancien paramètre `use_tls`.
 - Arrêt confirmé après deux contrôles négatifs consécutifs (seuil configurable).
 - Mail de rétablissement après une panne confirmée lorsque Trend redevient actif.

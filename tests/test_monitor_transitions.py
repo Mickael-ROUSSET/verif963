@@ -12,7 +12,7 @@ spec.loader.exec_module(app)
 
 
 class MonitorTransitionsTests(TestCase):
-    def scenario(self, states, threshold):
+    def scenario(self, states, threshold, recovery_failures=0, times=None):
         """states: observation initiale, puis une observation par passage de boucle."""
         config = configparser.ConfigParser()
         with TemporaryDirectory() as directory:
@@ -30,21 +30,66 @@ class MonitorTransitionsTests(TestCase):
             }
             observed = iter(states)
             subjects = []
+            self.attempts = []
+            clock = {"index": 0, "observations": 0}
+            loops = len(states) - 1 + int(not states[0] and threshold == 1)
+            times = times or list(range(loops))
+            self.assertEqual(len(times), loops)
 
             def process_list(_attributes):
                 running = next(observed)
+                clock["observations"] += 1
                 return [type("Process", (), {"info": {"name": "s2.exe"}})()] if running else []
 
             def capture_mail(_settings, _recipients, subject, _body):
+                nonlocal recovery_failures
+                self.attempts.append((subject, times[clock["index"]], clock["observations"], _body))
+                if "rétabli" in subject and recovery_failures:
+                    recovery_failures -= 1
+                    raise OSError("SMTP temporairement indisponible")
                 subjects.append(subject)
+
+            def sleep(_seconds):
+                clock["index"] += 1
+                if clock["index"] >= loops:
+                    raise KeyboardInterrupt()
 
             with patch.object(app, "load_config", return_value=config), \
                  patch.object(app.psutil, "process_iter", side_effect=process_list), \
                  patch.object(app, "send_mail", side_effect=capture_mail), \
-                 patch.object(app.time, "sleep", side_effect=[None] * (len(states) - 2) + [KeyboardInterrupt()]), \
+                 patch.object(app.time, "sleep", side_effect=sleep), \
+                 patch.object(app.time, "monotonic", side_effect=lambda: times[clock["index"]]), \
                  patch.object(app.logging, "basicConfig"):
                 app.run()
         return subjects
+
+    def test_threshold_one_alerts_before_second_observation(self):
+        subjects = self.scenario([False, True], threshold=1)
+        self.assertIn("arrêté", subjects[0])
+        self.assertIn("rétabli", subjects[1])
+        self.assertEqual(self.attempts[0][2], 1)
+
+    def test_threshold_one_initial_absence_alone_sends_alert(self):
+        subjects = self.scenario([False], threshold=1)
+        self.assertEqual(len(subjects), 1)
+        self.assertIn("arrêté", subjects[0])
+
+    def test_recovery_retries_after_delay_and_stops_after_success(self):
+        subjects = self.scenario([True, False, False, True, True, True, True],
+                                 threshold=2, recovery_failures=1,
+                                 times=[10, 11, 12, 30, 72, 90])
+        attempts = [attempt for attempt in self.attempts if "rétabli" in attempt[0]]
+        self.assertEqual([attempt[1] for attempt in attempts], [12, 72])
+        self.assertEqual(attempts[0][3], attempts[1][3])
+        self.assertEqual(sum("rétabli" in subject for subject in subjects), 1)
+
+    def test_recovery_repeated_failures_remain_pending(self):
+        subjects = self.scenario([True, False, False, True, True, True, True, True],
+                                 threshold=2, recovery_failures=2,
+                                 times=[10, 11, 12, 72, 100, 132, 150])
+        attempts = [attempt for attempt in self.attempts if "rétabli" in attempt[0]]
+        self.assertEqual([attempt[1] for attempt in attempts], [12, 72, 132])
+        self.assertEqual(sum("rétabli" in subject for subject in subjects), 1)
 
     def test_startup_absent_then_restored_before_threshold(self):
         self.assertEqual(self.scenario([False, True], threshold=3), [])

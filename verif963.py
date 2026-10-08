@@ -115,7 +115,11 @@ def run():
 
     running = active()
     confirmed_outage = False
-    failures = 0 if running else 1
+    initial_outage = not running and failures_required == 1
+    failures = 0 if running or initial_outage else 1
+    pending_recovery = None
+    next_recovery_attempt = 0.0
+    recovery_retry_delay = max(60, interval)
     last_mail = 0.0
     last_restart = 0.0
     logging.info("verif963 %s démarré; %s=%s", VERSION, process_name,
@@ -123,21 +127,33 @@ def run():
 
     while True:
         try:
-            is_running = active()
+            # For threshold 1, process the initial absence before another probe.
+            if initial_outage:
+                is_running = False
+                initial_outage = False
+            else:
+                is_running = active()
             now = time.monotonic()
             if is_running:
                 failures = 0
                 if confirmed_outage:
                     logging.info("%s est de nouveau actif", process_name)
-                    try:
-                        mail(f"[CHAUFFERIE] Trend 963 rétabli - {host}",
-                             f"RETOUR À LA NORMALE\n\nProcessus : {process_name}\n"
-                             f"Poste : {host}\nDate : {datetime.now():%d/%m/%Y %H:%M:%S}\n"
-                             f"Version verif963 : {VERSION}")
-                    except Exception:
-                        logging.exception("Échec envoi mail de rétablissement")
+                    pending_recovery = (
+                        f"[CHAUFFERIE] Trend 963 rétabli - {host}",
+                        f"RETOUR À LA NORMALE\n\nProcessus : {process_name}\n"
+                        f"Poste : {host}\nDate : {datetime.now():%d/%m/%Y %H:%M:%S}\n"
+                        f"Version verif963 : {VERSION}")
+                    next_recovery_attempt = now
                     last_mail = last_restart = 0.0
                 confirmed_outage = False
+                if pending_recovery and now >= next_recovery_attempt:
+                    try:
+                        mail(*pending_recovery)
+                    except Exception:
+                        logging.exception("Échec envoi mail de rétablissement")
+                        next_recovery_attempt = time.monotonic() + recovery_retry_delay
+                    else:
+                        pending_recovery = None
             else:
                 failures += 1
                 if not confirmed_outage and failures < failures_required:
@@ -147,6 +163,8 @@ def run():
                     if not confirmed_outage:
                         logging.error("Arrêt confirmé : %s (%s contrôles)", process_name, failures)
                         confirmed_outage = True
+                        # A new confirmed outage supersedes an unsent recovery.
+                        pending_recovery = None
                     attempted, success, error = False, False, None
                     if restart_enabled and (last_restart == 0 or now - last_restart >= restart_delay):
                         attempted = True
