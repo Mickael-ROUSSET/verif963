@@ -23,7 +23,7 @@ def clean(value):
     value = value.strip()
     if (value.startswith('r"') and value.endswith('"')) or (value.startswith("r'") and value.endswith("'")):
         value = value[2:-1]
-    elif len(value) >= 2 and value[0] in "'\\"" and value[-1] == value[0]:
+    elif len(value) >= 2 and value[0] in ("\'", '"') and value[-1] == value[0]:
         value = value[1:-1]
     return value.strip()
 
@@ -114,8 +114,8 @@ def run():
             logging.exception("Échec mail de test")
 
     running = active()
-    confirmed_outage = not running
-    failures = 0
+    confirmed_outage = False
+    failures = 0 if running else 1
     last_mail = 0.0
     last_restart = 0.0
     logging.info("verif963 %s démarré; %s=%s", VERSION, process_name,
