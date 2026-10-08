@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.1
+- SMTP SSL/TLS implicite (port 465, Orange) et STARTTLS (port 587, Gmail), compatible avec l'ancien paramètre `use_tls`.
+- Arrêt confirmé après deux contrôles négatifs consécutifs (seuil configurable).
+- Mail de rétablissement après une panne confirmée lorsque Trend redevient actif.
+- Le redémarrage automatique de Trend reste désactivé par défaut.
+
 ## 1.1.0
 - Installation « une commande » sur un nouveau PC Windows.
 - Installation automatique de Python via winget lorsqu'il est absent.
