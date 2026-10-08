@@ -23,7 +23,7 @@ def clean(value):
     value = value.strip()
     if (value.startswith('r"') and value.endswith('"')) or (value.startswith("r'") and value.endswith("'")):
         value = value[2:-1]
-    elif len(value) >= 2 and value[0] in ("\'", '"') and value[-1] == value[0]:
+    elif len(value) >= 2 and value[0] in ("'", '"') and value[-1] == value[0]:
         value = value[1:-1]
     return value.strip()
 
