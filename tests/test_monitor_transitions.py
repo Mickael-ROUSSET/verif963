@@ -41,7 +41,7 @@ class MonitorTransitionsTests(TestCase):
             with patch.object(app, "load_config", return_value=config), \
                  patch.object(app.psutil, "process_iter", side_effect=process_list), \
                  patch.object(app, "send_mail", side_effect=capture_mail), \
-                 patch.object(app.time, "sleep", side_effect=KeyboardInterrupt), \
+                 patch.object(app.time, "sleep", side_effect=[None] * (len(states) - 2) + [KeyboardInterrupt()]), \
                  patch.object(app.logging, "basicConfig"):
                 app.run()
         return subjects
@@ -50,7 +50,7 @@ class MonitorTransitionsTests(TestCase):
         self.assertEqual(self.scenario([False, True], threshold=3), [])
 
     def test_startup_absent_below_high_threshold(self):
-        self.assertEqual(self.scenario([False, False], threshold=5), [])
+        self.assertEqual(self.scenario([False, False, False, False], threshold=5), [])
 
     def test_startup_absent_reaches_threshold(self):
         subjects = self.scenario([False, False], threshold=2)
@@ -62,4 +62,16 @@ class MonitorTransitionsTests(TestCase):
 
     def test_running_then_recovery_without_confirmed_outage(self):
         # Une seule observation de panne: aucun mail de panne ni de retablissement.
-        self.assertEqual(self.scenario([True, False], threshold=2), [])
+        self.assertEqual(self.scenario([True, False, True], threshold=2), [])
+
+    def test_confirmed_outage_then_recovery_emits_two_mails(self):
+        subjects = self.scenario([True, False, False, True], threshold=2)
+        self.assertEqual(len(subjects), 2)
+        self.assertIn("arrêté", subjects[0])
+        self.assertIn("rétabli", subjects[1])
+
+    def test_startup_absent_then_recovery_emits_two_mails(self):
+        subjects = self.scenario([False, False, True], threshold=2)
+        self.assertEqual(len(subjects), 2)
+        self.assertIn("arrêté", subjects[0])
+        self.assertIn("rétabli", subjects[1])
