@@ -53,3 +53,11 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests\Installer.Tests.ps
 ```
 
 Les tests simulent GitHub, pip et le planificateur sans installation machine. Les validations reelles sur une VM Windows 10 vierge restent necessaires pour winget, les ACL et le lancement sous SYSTEM. Voir `docs/Revue_installation.md`.
+
+## Journal des contrôles de présence
+
+Chaque observation réelle du processus produit une ligne INFO dans `log_file`, par exemple `Vérification s2.exe : ACTIF` ou `Vérification s2.exe : INACTIF`. L'encodage reste UTF-8 et les nouveaux messages s'ajoutent au fichier existant, y compris après redémarrage de la tâche planifiée. Les WARNING/ERROR de panne et les INFO de rétablissement restent distincts.
+
+La boucle conserve `check_interval_seconds` (30 secondes par défaut), sans modification des seuils, des mails ni des temporisations. L'observation initiale est journalisée ; si le seuil vaut 1, son résultat réutilisé par la boucle n'est pas journalisé une deuxième fois. Les contrôles réels déjà effectués pour le mail de test au démarrage et la vérification après redémarrage de Trend sont aussi journalisés. Aucun contrôle supplémentaire ni attente supplémentaire n'est introduit : des observations rapprochées peuvent donc apparaître au démarrage comme auparavant.
+
+Conformément aux commentaires 6298512416 et 6298525652, la rotation et la conservation des logs sont reportées au remplacement du PC de la chaufferie. Aucun paramètre de rotation n'est ajouté ; le fichier continue à croître entre les interventions de l'exploitant. Les INI existants restent compatibles et `restart_enabled=false` reste la valeur par défaut.
