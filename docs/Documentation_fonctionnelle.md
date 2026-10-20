@@ -5,3 +5,5 @@ verif963 surveille périodiquement le processus Trend 963 `s2.exe`. En cas d'arr
 Les contrôles, mails et tentatives de redémarrage ont des temporisations indépendantes. Le fichier `surveillance_963.ini` reste local et n'est jamais remplacé par la mise à jour.
 
 Le premier mail d'un nouvel arrêt est immédiat. Tant que l'arrêt persiste, les mails sont espacés de `mail_alert_interval_minutes`. Après retour du processus, les temporisations sont réinitialisées.
+
+Chaque contrôle réel du processus est journalisé en INFO (ACTIF/INACTIF), même lorsque Trend fonctionne. Les transitions et alertes restent séparées. La rotation des logs est reportée au remplacement du PC ; aucun nouveau paramètre n'est nécessaire.

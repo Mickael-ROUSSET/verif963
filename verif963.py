@@ -95,13 +95,17 @@ def run():
                         format="%(asctime)s - %(levelname)s - %(message)s", encoding="utf-8")
 
     def active():
+        is_active = False
         for proc in psutil.process_iter(["name"]):
             try:
                 if (proc.info.get("name") or "").lower() == process_name.lower():
-                    return True
+                    is_active = True
+                    break
             except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
                 pass
-        return False
+        # Log the actual probe, never a cached result reused by threshold handling.
+        logging.info("Vérification %s : %s", process_name, "ACTIF" if is_active else "INACTIF")
+        return is_active
 
     def mail(subject, body):
         send_mail(smtp, recipients, subject, body)

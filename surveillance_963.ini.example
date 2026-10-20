@@ -2,6 +2,7 @@
 process_name = s2.exe
 exe_path = C:\Program Files (x86)\Trend Control Systems\963\s2.exe
 working_dir = C:\Program Files (x86)\Trend Control Systems\963
+; Une ligne INFO ACTIF/INACTIF par contrôle réel ; ajout au fichier existant, sans rotation.
 log_file = C:\Users\Public\SupervisionMairie\Surveillance_963\surveillance_963.log
 check_interval_seconds = 30
 consecutive_failures_required = 2
